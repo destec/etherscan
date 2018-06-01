@@ -13,9 +13,10 @@ impl Client {
   }
 
   pub fn get(&self, endpoint: String) -> Result<reqwest::Response, reqwest::Error> {
-    let url = format!("{}/{}", API_HOST, endpoint);
+    let mut url = format!("{}?{}", API_HOST, endpoint);
+    url.push_str(format!("&apikey={}", self.api_key).as_str());
     let client = reqwest::Client::new();
-    let response = reqwest::get(url.as_str());
+    let response = client.get(url.as_str()).send();
     return response;
   }
 }

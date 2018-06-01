@@ -1,14 +1,26 @@
-extern crate etherscan_rs;
+extern crate etherscan;
 extern crate reqwest;
 
-use etherscan_rs::client::Client;
+use etherscan::client::Client;
+use std::env;
+
+static PSEUDO_KEY: &'static str = "123456";
 
 #[test]
-fn it_works() {
-  let client = Client::new("aaa".to_string());
-  let resp = client
-    .get("/module=stats&action=ethsupply&apikey=aaa".to_string())
+fn works_for_invalid_key() {
+  let requestor = Client::new(PSEUDO_KEY.to_string());
+  let resp = requestor
+    .get("module=stats&action=ethsupply".to_string())
     .unwrap();
-  println!("{:?}", resp);
-  assert_eq!(resp.status(), reqwest::StatusCode::BadRequest);
+  assert_eq!(resp.status(), reqwest::StatusCode::Ok);
+}
+
+#[test]
+fn works_for_valid_key() {
+  let real_key: String = env::var("ETHERSCAN_APIKEY").unwrap();
+  let requestor = Client::new(real_key.to_string());
+  let resp = requestor
+    .get("module=stats&action=ethsupply".to_string())
+    .unwrap();
+  assert_eq!(resp.status(), reqwest::StatusCode::Ok);
 }
